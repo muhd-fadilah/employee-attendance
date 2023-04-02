@@ -10,19 +10,21 @@ module.exports = function(app) {
     next();
   });
 
-  app.get("/api/test/all", controller.allAccess);
-
-  app.get("/api/test/", [authJwt.verifyToken], controller.normalBoard);
-
-  app.get(
-    "/api/test/admin",
-    [authJwt.verifyToken, authJwt.isAdmin],
-    controller.adminBoard
-  );
-
   app.get(
     "/api/mark_attend",
     [authJwt.verifyToken],
     controller.markAttend
+  )
+
+  app.post(
+    "/api/request_day_off",
+    [authJwt.verifyToken],
+    controller.createDayOffRequest
+  )
+
+  app.get(
+    "/api/request_day_off",
+    [authJwt.verifyToken],
+    controller.showDayOffRequests
   )
 };
