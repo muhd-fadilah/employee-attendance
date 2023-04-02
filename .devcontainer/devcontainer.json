@@ -1,0 +1,22 @@
+{
+    "name": "Express",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "node-web",
+    "workspaceFolder": "/app",
+    "customizations": {
+        "vscode": {
+            "settings" : {
+                "terminal.integrated.profiles.linux": {
+                    "Custom Init": {
+                        "path": "/bin/bash"
+                    }
+                }
+            },
+            "extensions": [
+                "christian-kohler.npm-intellisense",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode"
+            ]
+        }
+    }   
+}
