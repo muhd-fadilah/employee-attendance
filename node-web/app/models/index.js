@@ -7,6 +7,7 @@ const db = {};
 db.mongoose = mongoose;
 db.url = dbConfig.url;
 db.employee = require("./employee.model.js");
+db.attendance = require("./attendance.model.js");
 db.role = require("./role.model");
 db.roles = ["normal", "admin"]
 

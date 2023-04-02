@@ -26,6 +26,8 @@ services:
       - NODE_DOCKER_PORT=$NODE_DOCKER_PORT
       - AUTH_SECRET_KEY=$AUTH_SECRET_KEY
       - ADMIN_SECRET_KEY=$ADMIN_SECRET_KEY
+      - OPEN_ATTENDANCE_HOUR=$OPEN_ATTENDANCE_HOUR
+      - END_WORKING_HOUR=$END_WORKING_HOUR
     volumes: 
       - /app/node_modules
       - ./node-web:/app
