@@ -1,20 +1,25 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const employee = mongoose.model("employee", new Schema({
-    ein: {
-        type: String, 
-        unique: true
-    },
-    password: String,
-    name: String,
-    roles: [
+const employee = mongoose.model(
+  "Employee",
+  new Schema(
+    {
+      ein: {
+        type: String,
+        unique: true,
+      },
+      password: String,
+      name: String,
+      roles: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Role"
-        }
-    ]
-  }, { timestamps: true }
-));
+          ref: "Role",
+        },
+      ],
+    },
+    { timestamps: true }
+  )
+);
 
-module.exports = employee
+module.exports = employee;

@@ -34,7 +34,7 @@ checkRolesExisted = (req, res, next) => {
 
       if (
         req.body.roles[i] == "admin" &&
-        req.body.admin_secret_key != process.env.ADMIN_SECRET_KEY
+        req.body.adminSecretKey != process.env.ADMIN_SECRET_KEY
       ) {
         res.status(400).send({
           message: `Failed! Admin secret key is not valid!`,
