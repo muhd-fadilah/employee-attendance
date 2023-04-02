@@ -7,6 +7,8 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=password
       - MONGO_INITDB_DATABASE=${MONGODB_NAME}
+      - MONGO_INITDB_USER=${MONGODB_USER}
+      - MONGO_INITDB_PASSWORD=${MONGODB_PASSWORD}
     volumes: 
       - ./my_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro

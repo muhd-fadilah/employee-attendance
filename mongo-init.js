@@ -1,11 +1,11 @@
 db.createUser(
     {
-        user: "attendance_user",
-        pwd: "password",
+        user: process.env.MONGO_INITDB_USER,
+        pwd: process.env.MONGO_INITDB_PASSWORD,
         roles: [
             {
                 role: "readWrite",
-                db: "attendance_db"
+                db: process.env.MONGO_INITDB_DATABASE
             }
         ]
     }
