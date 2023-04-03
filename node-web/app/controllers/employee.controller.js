@@ -235,6 +235,35 @@ exports.showAttendancesMonthlyReport = async (req, res) => {
       currentDate.getMonth()
     );
 
+    const employee = await Employee.findById(req.employeeId);
+    const roles = await Role.find({ _id: { $in: employee.roles } });
+    var isAdmin = false;
+
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i].name === "admin") {
+        isAdmin = true;
+        break;
+      }
+    }
+
+    const matchQuery = () => {
+      if (isAdmin && req.query.showAll == "true") {
+        return {
+          $match: {
+            "_id": {
+              $ne: null,
+            },
+          },
+        };
+      }
+
+      return {
+        $match: {
+          "_id": employee._id,
+        },
+      };
+    };
+
     var results = await Employee.aggregate([
       {
         $lookup: {
@@ -306,6 +335,7 @@ exports.showAttendancesMonthlyReport = async (req, res) => {
           },
         },
       },
+      matchQuery(),
     ]).exec();
 
     res.send({ message: "monthly report data retrieved!", data: { results } });

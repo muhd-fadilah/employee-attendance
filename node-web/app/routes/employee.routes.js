@@ -16,6 +16,12 @@ module.exports = function (app) {
     controller.createAttendance
   );
 
+  app.get(
+    "/api/attendances",
+    [authJwt.verifyToken],
+    controller.showAttendancesMonthlyReport
+  );
+
   app.post(
     "/api/day_off_requests",
     [authJwt.verifyToken],
@@ -32,11 +38,5 @@ module.exports = function (app) {
     "/api/day_off_requests/:index",
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.updateDayOffRequest
-  );
-
-  app.get(
-    "/api/attendances_monthly_report",
-    [authJwt.verifyToken, authJwt.isAdmin],
-    controller.showAttendancesMonthlyReport
   );
 };
