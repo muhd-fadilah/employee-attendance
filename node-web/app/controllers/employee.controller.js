@@ -214,3 +214,78 @@ exports.updateDayOffRequest = (req, res) => {
       return;
     });
 };
+
+exports.showReport = async (req, res) => {
+  try {
+    var results = await Employee.aggregate([
+      {
+        $lookup: {
+          from: "attendances",
+          localField: "_id",
+          foreignField: "employee",
+          as: "att",
+        },
+      },
+      {
+        $unwind: "$att",
+      },
+      {
+        $group: {
+          _id: "$_id",
+          ein: { $first: "$ein" },
+          name: { $first: "$name" },
+          numOfOnTime: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$att.status", "ON_TIME"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          numOfLate: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$att.status", "LATE"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          numOfDayOff: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$att.status", "DAY_OFF"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          numOfNoInfo: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$att.status", "NO_INFO"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+    ]).exec();
+
+    res.send({ message: "report data retrieved!", data: { results } });
+    return;
+  } catch (err) {
+    res.status(500).send({ message: err });
+    return;    
+  }
+};
