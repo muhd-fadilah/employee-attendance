@@ -1,7 +1,8 @@
 const db = require("../models");
 const Attendance = db.attendance;
-const DayOffPermission = db.dayOffPermission;
+const DayOffRequest = db.dayOffRequest;
 const Employee = db.employee;
+const Role = db.role;
 
 exports.createDayOffRequest = (req, res) => {
   const currentDate = new Date().setHours(0, 0, 0);
@@ -13,13 +14,14 @@ exports.createDayOffRequest = (req, res) => {
     }
   }
 
-  const dayOffPermission = new DayOffPermission({
+  const dayOffRequest = new DayOffRequest({
     employee: req.employeeId,
     reason: req.body.reason,
     plannedDates: req.body.plannedDates,
+    status: "REQUESTED",
   });
 
-  dayOffPermission
+  dayOffRequest
     .save()
     .then(() => {
       res.send({ message: "day off permission request has been sent!" });
@@ -31,7 +33,7 @@ exports.createDayOffRequest = (req, res) => {
     });
 };
 
-exports.markAttend = (req, res) => {
+exports.createAttendance = (req, res) => {
   var current = new Date();
 
   var openAttendanceHour = new Date();
@@ -40,16 +42,19 @@ exports.markAttend = (req, res) => {
   var endWorkingHour = new Date();
   endWorkingHour.setHours(process.env.END_WORKING_HOUR, 0, 0);
 
+  var startWorkingHour = new Date();
+  startWorkingHour.setHours(process.env.START_WORKING_HOUR, 0, 0);
+
   if (current < openAttendanceHour || current > endWorkingHour) {
     res.status(400).send({
-      message: `Attendance open at ${openAttendanceHour} and close at ${endWorkingHour}!`,
+      message: `attendance open at ${openAttendanceHour.toLocaleTimeString()} and close at ${endWorkingHour.toLocaleTimeString()}!`,
     });
     return;
   }
 
   const attendance = new Attendance({
     employee: req.employeeId,
-    status: "present",
+    status: current <= startWorkingHour ? "ON_TIME" : "LATE",
   });
 
   Attendance.countDocuments({
@@ -60,14 +65,14 @@ exports.markAttend = (req, res) => {
       if (count !== 0) {
         res
           .status(400)
-          .send({ message: "Attendance already filled for today!" });
+          .send({ message: "attendance already created for today!" });
         return;
       }
 
       attendance
         .save()
         .then(() => {
-          res.send({ message: "Mark as attend succesfully!" });
+          res.send({ message: "attendance has been created!" });
           return;
         })
         .catch((err) => {
@@ -81,35 +86,51 @@ exports.markAttend = (req, res) => {
     });
 };
 
-// TODO: FIX HERE
-exports.showDayOffRequests = (req, res) => {  
+exports.showDayOffRequests = (req, res) => {
   Employee.findOne({ _id: req.employeeId })
     .then((result) => {
-      if (result.roles.includes("admin")) {
-        DayOffPermission.find()
-          .then((results) => {
-            res.send({
-              message: "day off requests data retrieved!",
-              data: results,
-            });
-          })
-          .catch((err) => {
-            res.status(500).send({ message: err });
-            return;
-          });
-      } else {
-        DayOffPermission.find({ employee: req.employeeId })
-          .then((results) => {
-            res.send({
-              message: "day off requests data retrieved!",
-              data: results,
-            });
-          })
-          .catch((err) => {
-            res.status(500).send({ message: err });
-            return;
-          });
-      }
+      Role.find({
+        _id: { $in: result.roles },
+      })
+        .then((roles) => {
+          var isAdmin = false;
+
+          for (let i = 0; i < roles.length; i++) {
+            if (roles[i].name === "admin") {
+              isAdmin = true;
+            }
+          }
+          if (isAdmin && req.query.showAll == "true") {
+            DayOffRequest.find()
+              .then((results) => {
+                res.send({
+                  message: "day off request data retrieved! showing all data.",
+                  data: results,
+                });
+              })
+              .catch((err) => {
+                res.status(500).send({ message: err });
+                return;
+              });
+          } else {
+            DayOffRequest.find({ employee: req.employeeId })
+              .then((results) => {
+                res.send({
+                  message:
+                    "day off request data retrieved! showing data related to you.",
+                  data: results,
+                });
+              })
+              .catch((err) => {
+                res.status(500).send({ message: err });
+                return;
+              });
+          }
+        })
+        .catch((err) => {
+          res.status(500).send({ message: err });
+          return;
+        });
     })
     .catch((err) => {
       res.status(500).send({ message: err });
