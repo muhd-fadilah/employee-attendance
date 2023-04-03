@@ -8,7 +8,7 @@ db.mongoose = mongoose;
 db.url = dbConfig.url;
 db.employee = require("./employee.model.js");
 db.attendance = require("./attendance.model.js");
-db.dayOffPermission = require("./dayOffPermission.model.js");
+db.dayOffRequest = require("./dayOffRequest.model.js");
 db.role = require("./role.model");
 db.roles = ["normal", "admin"]
 

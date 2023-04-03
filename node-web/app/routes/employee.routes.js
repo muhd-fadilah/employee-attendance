@@ -10,20 +10,20 @@ module.exports = function(app) {
     next();
   });
 
-  app.get(
-    "/api/mark_attend",
+  app.post(
+    "/api/attendances",
     [authJwt.verifyToken],
-    controller.markAttend
+    controller.createAttendance
   )
 
   app.post(
-    "/api/request_day_off",
+    "/api/day_off_requests",
     [authJwt.verifyToken],
     controller.createDayOffRequest
   )
 
   app.get(
-    "/api/request_day_off",
+    "/api/day_off_requests",
     [authJwt.verifyToken],
     controller.showDayOffRequests
   )
