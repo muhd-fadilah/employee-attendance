@@ -35,8 +35,8 @@ module.exports = function (app) {
   );
 
   app.get(
-    "/api/reports",
+    "/api/attendances_monthly_report",
     [authJwt.verifyToken, authJwt.isAdmin],
-    controller.showReport
+    controller.showAttendancesMonthlyReport
   );
 };

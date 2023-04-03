@@ -215,8 +215,26 @@ exports.updateDayOffRequest = (req, res) => {
     });
 };
 
-exports.showReport = async (req, res) => {
+function getFirstDayOfMonth(year, month) {
+  return new Date(year, month, 1);
+}
+
+function getLastDayOfMonth(year, month) {
+  return new Date(year, month + 1, 0);
+}
+
+exports.showAttendancesMonthlyReport = async (req, res) => {
   try {
+    const currentDate = new Date();
+    const startDate = getFirstDayOfMonth(
+      currentDate.getFullYear(),
+      currentDate.getMonth()
+    );
+    const endDate = getLastDayOfMonth(
+      currentDate.getFullYear(),
+      currentDate.getMonth()
+    );
+
     var results = await Employee.aggregate([
       {
         $lookup: {
@@ -228,6 +246,14 @@ exports.showReport = async (req, res) => {
       },
       {
         $unwind: "$att",
+      },
+      {
+        $match: {
+          "att.createdAt": {
+            $gte: startDate,
+            $lt: endDate,
+          },
+        },
       },
       {
         $group: {
@@ -282,10 +308,10 @@ exports.showReport = async (req, res) => {
       },
     ]).exec();
 
-    res.send({ message: "report data retrieved!", data: { results } });
+    res.send({ message: "monthly report data retrieved!", data: { results } });
     return;
   } catch (err) {
     res.status(500).send({ message: err });
-    return;    
+    return;
   }
 };
