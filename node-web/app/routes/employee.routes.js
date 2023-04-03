@@ -27,4 +27,10 @@ module.exports = function(app) {
     [authJwt.verifyToken],
     controller.showDayOffRequests
   )
+
+  app.patch(
+    "/api/day_off_requests/:index",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.updateDayOffRequest
+  )
 };
