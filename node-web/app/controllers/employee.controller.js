@@ -144,6 +144,9 @@ exports.updateDayOffRequest = (req, res) => {
 
   DayOffRequest.findOne({ _id: index })
     .then((result) => {
+      if(!result) {
+        res.status(404).send({ message: "resource not found"});
+      }
       if (result.employee == req.employeeId) {
         res.status(422).send({
           message: "can't change day off request created by yourself!",
