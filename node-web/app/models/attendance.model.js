@@ -8,8 +8,13 @@ const attendance = mongoose.model(
       employee: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Employee",
+        required: true,
       },
-      status: String
+      status: {
+        type: String,
+        enum: ["ON_TIME", "DAY_OFF", "LATE", "NO_INFO"],
+        required: true,
+      },
     },
     { timestamps: true }
   )

@@ -7,14 +7,16 @@ const employee = mongoose.model(
     {
       ein: {
         type: String,
+        required: true,
         unique: true,
       },
-      password: String,
-      name: String,
+      password: { type: String, required: true },
+      name: { type: String, required: true },
       roles: [
         {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Role",
+          required: true,
         },
       ],
     },
