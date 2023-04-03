@@ -146,6 +146,7 @@ exports.updateDayOffRequest = (req, res) => {
     .then((result) => {
       if(!result) {
         res.status(404).send({ message: "resource not found"});
+        return;
       }
       if (result.employee == req.employeeId) {
         res.status(422).send({
@@ -167,7 +168,6 @@ exports.updateDayOffRequest = (req, res) => {
       result
         .save()
         .then(() => {
-          console.log(result.plannedDates);
           if (req.body.status == "ACCEPTED") {
             var attendances = [];
 
