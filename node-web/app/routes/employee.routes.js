@@ -31,7 +31,7 @@ module.exports = function (app) {
   app.get(
     "/api/day_off_requests",
     [authJwt.verifyToken],
-    controller.showDayOffRequests
+    controller.showDayOffRequestsMonthlyReport
   );
 
   app.patch(

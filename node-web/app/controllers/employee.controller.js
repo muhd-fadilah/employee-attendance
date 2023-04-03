@@ -223,6 +223,118 @@ function getLastDayOfMonth(year, month) {
   return new Date(year, month + 1, 0);
 }
 
+exports.showDayOffRequestsMonthlyReport = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const startDate = getFirstDayOfMonth(
+      currentDate.getFullYear(),
+      currentDate.getMonth()
+    );
+    const endDate = getLastDayOfMonth(
+      currentDate.getFullYear(),
+      currentDate.getMonth()
+    );
+
+    const employee = await Employee.findById(req.employeeId);
+    const roles = await Role.find({ _id: { $in: employee.roles } });
+    var isAdmin = false;
+
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i].name === "admin") {
+        isAdmin = true;
+        break;
+      }
+    }
+
+    const matchQuery = () => {
+      if (isAdmin && req.query.showAll == "true") {
+        return {
+          $match: {
+            "_id": {
+              $ne: null,
+            },
+          },
+        };
+      }
+
+      return {
+        $match: {
+          "_id": employee._id,
+        },
+      };
+    };
+
+    var results = await Employee.aggregate([
+      {
+        $lookup: {
+          from: "dayoffrequests",
+          localField: "_id",
+          foreignField: "employee",
+          as: "att",
+        },
+      },
+      {
+        $unwind: "$att",
+      },
+      {
+        $match: {
+          "att.createdAt": {
+            $gte: startDate,
+            $lt: endDate,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          ein: { $first: "$ein" },
+          name: { $first: "$name" },
+          numOfAccepted: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$att.status", "ACCEPTED"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          numOfRejected: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$att.status", "REJECTED"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          numOfRequested: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$att.status", "REQUESTED"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      matchQuery(),
+    ]).exec();
+
+    res.send({ message: "monthly report data retrieved!", data: { results } });
+    return;
+  } catch (err) {
+    res.status(500).send({ message: err });
+    return;
+  }
+}
+
 exports.showAttendancesMonthlyReport = async (req, res) => {
   try {
     const currentDate = new Date();
